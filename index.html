@@ -16,7 +16,7 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* 50px top gutter, 400px right gutter */
+    /* 80px top gutter, 411px right gutter, 107px bottom gutter */
     .top-reserved {
       position: fixed;
       top: 0; left: 0; right: 411px; height: 80px;
@@ -31,16 +31,26 @@
 
     .right-reserved {
       position: fixed;
-      top: 0; right: 0; bottom: 0; width: 400px;
+      top: 0; right: 0; bottom: 0; width: 411px;
       background: #000;
       border-left: 1px solid rgba(255,255,255,0.06);
       z-index: 1;
       overflow: auto;
     }
 
+    .bottom-reserved {
+      position: fixed;
+      left: 0; right: 411px; bottom: 0; height: 107px;
+      background: #000;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      z-index: 2;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 12px;
+    }
+
     .main {
       position: fixed;
-      top: 80px; right: 400px; bottom: 107px; left: 0;
+      top: 80px; right: 411px; bottom: 107px; left: 0;
       background: #000;          /* black behind the iframe while it loads */
       z-index: 0;
     }
@@ -52,7 +62,7 @@
       background: #000;          /* iframe surface fallback */
     }
 
-    .right-reserved, .top-reserved { -webkit-user-select: none; user-select: none; }
+    .right-reserved, .top-reserved, .bottom-reserved { -webkit-user-select: none; user-select: none; }
   </style>
 </head>
 <body>
@@ -65,7 +75,7 @@
   <!-- Right gutter for any controls/diagnostics you want -->
   <aside class="right-reserved">
     <div style="padding:12px;">
-      <h2 style="margin:12px 0 8px;font-size:16px;">Side Panel (400px reserved)</h2>
+      <h2 style="margin:12px 0 8px;font-size:16px;">Side Panel (411px reserved)</h2>
       <p style="opacity:.8;line-height:1.4;margin:0 0 12px;">
         Put AAOS controls, logs, or status here. The iframe to the left fills the remaining space.
       </p>
@@ -73,7 +83,12 @@
     </div>
   </aside>
 
-  <!-- Main area (iframe fills what remains after top/right gutters) -->
+  <!-- Bottom gutter (107px) -->
+  <footer class="bottom-reserved" aria-label="Footer">
+    <div style="opacity:.8;font-size:13px;">Footer (107px reserved)</div>
+  </footer>
+
+  <!-- Main area (iframe fills what remains after top/right/bottom gutters) -->
   <main class="main" role="main" aria-label="TesPush View">
     <iframe
       src="https://tespush.com/"
@@ -89,16 +104,21 @@
       const vwvh = document.getElementById('vwvh');
       const mainDims = document.getElementById('mainDims');
 
+      // Keep these in one place so CSS/JS stay in sync
+      const GUTTER_TOP = 80;
+      const GUTTER_RIGHT = 411;
+      const GUTTER_BOTTOM = 107;
+
       function update() {
         // Total WebView viewport in CSS pixels
         const w = Math.round(window.innerWidth);
         const h = Math.round(window.innerHeight);
         vwvh.textContent = `${w} × ${h} px`;
 
-        // Optional: also show the iframe area size (remaining space)
-        const iframeW = Math.max(0, w - 400);
-        const iframeH = Math.max(0, h - 50);
-        if (mainDims) mainDims.textContent = `Iframe area: ${iframeW} × ${iframeH} px`;
+        // Iframe (main area) size = viewport minus gutters
+        const iframeW = Math.max(0, w - GUTTER_RIGHT);
+        const iframeH = Math.max(0, h - (GUTTER_TOP + GUTTER_BOTTOM));
+        if (mainDims) mainDims.textContent = `Iframe area: ${iframeW} × ${iframeH} px (right ${GUTTER_RIGHT}, top ${GUTTER_TOP}, bottom ${GUTTER_BOTTOM})`;
       }
 
       window.addEventListener('load', update, { passive: true });
