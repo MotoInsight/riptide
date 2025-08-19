@@ -2,75 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#000000" />
   <title>Riptide – Embedded TesPush</title>
   <style>
-    /* Remove default body spacing */
     html, body { height: 100%; }
-    body { margin: 0; background: #0b0b0b; color: #fff; font-family: system-ui, sans-serif; }
+    html { background: #000; }
+    body {
+      margin: 0;
+      background: #000;          /* true black */
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
 
-    /* Reserve a fixed 50px top bar (left side only; the right gutter is separate) */
+    /* 50px top gutter, 400px right gutter */
     .top-reserved {
       position: fixed;
       top: 0; left: 0; right: 400px; height: 50px;
-      display: flex; align-items: center; padding: 0 12px;
-      background: #111; box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 12px;
+      background: #000;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       z-index: 2;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .3px;
     }
 
-    /* Reserve a fixed 400px right pane from top to bottom */
     .right-reserved {
       position: fixed;
       top: 0; right: 0; bottom: 0; width: 400px;
-      background: #111; box-shadow: 1px 0 0 rgba(255,255,255,0.06) inset;
+      background: #000;
+      border-left: 1px solid rgba(255,255,255,0.06);
       z-index: 1;
       overflow: auto;
     }
 
-    /* The main area (below top, left of right pane) holds the iframe */
     .main {
       position: fixed;
-      top: 50px;         /* 50px gutter on top */
-      right: 400px;      /* 400px gutter on right */
-      bottom: 0;
-      left: 0;
+      top: 50px; right: 400px; bottom: 0; left: 0;
+      background: #000;          /* black behind the iframe while it loads */
       z-index: 0;
-      background: #000;
     }
 
     .main iframe {
       position: absolute; inset: 0;
       width: 100%; height: 100%;
       border: 0;
+      background: #000;          /* iframe surface fallback */
     }
 
-    /* Optional: make text selectable & comfortable inside the side/top areas */
     .right-reserved, .top-reserved { -webkit-user-select: none; user-select: none; }
   </style>
 </head>
 <body>
 
-  <!-- Top gutter (50px). Put any status widgets, clock, etc. here. -->
+  <!-- Header shows total WebView viewport size -->
   <div class="top-reserved">
-    <strong>Header (50px reserved)</strong>
+    <span id="vwvh" aria-live="polite">—</span>
   </div>
 
-  <!-- Right gutter (400px). Put AAOS controls, diagnostics, etc. here. -->
+  <!-- Right gutter for any controls/diagnostics you want -->
   <aside class="right-reserved">
     <div style="padding:12px;">
       <h2 style="margin:12px 0 8px;font-size:16px;">Side Panel (400px reserved)</h2>
       <p style="opacity:.8;line-height:1.4;margin:0 0 12px;">
-        Content here stays visible while TesPush runs in the main area.
+        Put AAOS controls, logs, or status here. The iframe to the left fills the remaining space.
       </p>
+      <div id="mainDims" style="opacity:.8;font-size:13px;"></div>
     </div>
   </aside>
 
-  <!-- Main area = the remainder of the page -->
+  <!-- Main area (iframe fills what remains after top/right gutters) -->
   <main class="main" role="main" aria-label="TesPush View">
-    <!-- If tespush.com is blocked or not HTTPS in your environment, switch to https://tespush.cn/ -->
     <iframe
       src="https://tespush.com/"
       allow="autoplay; fullscreen; clipboard-read; clipboard-write"
@@ -80,5 +84,31 @@
     ></iframe>
   </main>
 
+  <script>
+    (function () {
+      const vwvh = document.getElementById('vwvh');
+      const mainDims = document.getElementById('mainDims');
+
+      function update() {
+        // Total WebView viewport in CSS pixels
+        const w = Math.round(window.innerWidth);
+        const h = Math.round(window.innerHeight);
+        vwvh.textContent = `${w} × ${h} px`;
+
+        // Optional: also show the iframe area size (remaining space)
+        const iframeW = Math.max(0, w - 400);
+        const iframeH = Math.max(0, h - 50);
+        if (mainDims) mainDims.textContent = `Iframe area: ${iframeW} × ${iframeH} px`;
+      }
+
+      window.addEventListener('load', update, { passive: true });
+      window.addEventListener('resize', update, { passive: true });
+      window.addEventListener('orientationchange', update, { passive: true });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', update, { passive: true });
+      }
+      update();
+    })();
+  </script>
 </body>
 </html>
