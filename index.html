@@ -1,202 +1,84 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Infotainment</title>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Riptide – Embedded TesPush</title>
+  <style>
+    /* Remove default body spacing */
+    html, body { height: 100%; }
+    body { margin: 0; background: #0b0b0b; color: #fff; font-family: system-ui, sans-serif; }
 
-        body {
-            font-family: 'Libre Caslon Text', Arial, sans-serif;
-            background-image: url('assets/wallpaper.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
+    /* Reserve a fixed 50px top bar (left side only; the right gutter is separate) */
+    .top-reserved {
+      position: fixed;
+      top: 0; left: 0; right: 400px; height: 50px;
+      display: flex; align-items: center; padding: 0 12px;
+      background: #111; box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset;
+      z-index: 2;
+    }
 
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(15, 16, 18, 0.5);
-            pointer-events: none;
-        }
+    /* Reserve a fixed 400px right pane from top to bottom */
+    .right-reserved {
+      position: fixed;
+      top: 0; right: 0; bottom: 0; width: 400px;
+      background: #111; box-shadow: 1px 0 0 rgba(255,255,255,0.06) inset;
+      z-index: 1;
+      overflow: auto;
+    }
 
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 45px;
-            padding: 30px;
-            width: 100%;
-            max-width: 720px;
-            height: 100%;
-            max-height: 380px;
-        }
+    /* The main area (below top, left of right pane) holds the iframe */
+    .main {
+      position: fixed;
+      top: 50px;         /* 50px gutter on top */
+      right: 400px;      /* 400px gutter on right */
+      bottom: 0;
+      left: 0;
+      z-index: 0;
+      background: #000;
+    }
 
-        .app-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            border-radius: 30px;
-        }
+    .main iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
 
-        .app-icon:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-        }
-
-        .app-icon:active {
-            transform: scale(0.95);
-        }
-
-        .app-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: opacity 0.3s ease;
-        }
-
-        .app-icon:hover img {
-            opacity: 0.85;
-        }
-
-        /* Placeholder styling for apps without icons */
-        .app-icon.placeholder {
-            background-color: #4A484A;
-            border-radius: 30px;
-        }
-
-        .app-icon.placeholder:hover {
-            background-color: #6A6869;
-        }
-
-        .app-icon.placeholder::before {
-            content: '';
-            width: 50%;
-            height: 50%;
-            background-color: #8D898A;
-            border-radius: 10px;
-        }
-
-        /* Fullscreen toggle button styling */
-        .app-icon.fullscreen-toggle {
-            background-color: #294878;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .app-icon.fullscreen-toggle:hover {
-            background-color: #3a5a8a;
-        }
-
-        .app-icon.fullscreen-toggle svg {
-            width: 40%;
-            height: 40%;
-        }
-    </style>
+    /* Optional: make text selectable & comfortable inside the side/top areas */
+    .right-reserved, .top-reserved { -webkit-user-select: none; user-select: none; }
+  </style>
 </head>
 <body>
-    <div class="app-grid">
-        <a href="https://tespush.com" class="app-icon" data-app="carplay">
-            <img src="assets/icons/carplay.png" alt="Carplay">
-        </a>        
-        <a href="https://m.youtube.com" class="app-icon" data-app="youtube">
-            <img src="assets/icons/youtube.png" alt="YouTube">
-        </a>        
-        <a href="https://twitch.com" class="app-icon" data-app="twitch">
-            <img src="assets/icons/twitch.png" alt="Twitch">
-        </a>
-        <a href="https://web.gc.com" class="app-icon" data-app="gamechanger">
-            <img src="assets/icons/gamechanger.png" alt="GameChanger">
-        </a>
-        <a href="https://netflix.com" class="app-icon" data-app="netflix">
-            <img src="assets/icons/netflix.png" alt="Netflix">
-        </a>
-        <a href="https://paramountplus.com" class="app-icon" data-app="paramount">
-            <img src="assets/icons/paramount.png" alt="Paramount+">
-        </a>
-        <a href="https://hbomax.com" class="app-icon" data-app="hbomax">
-            <img src="assets/icons/hbomax.png" alt="HBO Max">
-        </a>
-        <a href="https://tv.apple.com" class="app-icon" data-app="appletv">
-            <img src="assets/icons/apple_tv.png" alt="Apple TV">
-        </a>    
+
+  <!-- Top gutter (50px). Put any status widgets, clock, etc. here. -->
+  <div class="top-reserved">
+    <strong>Header (50px reserved)</strong>
+  </div>
+
+  <!-- Right gutter (400px). Put AAOS controls, diagnostics, etc. here. -->
+  <aside class="right-reserved">
+    <div style="padding:12px;">
+      <h2 style="margin:12px 0 8px;font-size:16px;">Side Panel (400px reserved)</h2>
+      <p style="opacity:.8;line-height:1.4;margin:0 0 12px;">
+        Content here stays visible while TesPush runs in the main area.
+      </p>
     </div>
-    
-    <script>
-        function toggleFullscreen() {
-            const elem = document.documentElement;
-            const fullscreenIcon = document.querySelector('.fullscreen-icon');
-            const exitFullscreenIcon = document.querySelector('.exit-fullscreen-icon');
-            
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                // Enter fullscreen
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) {
-                    elem.msRequestFullscreen();
-                }
-                
-                // Switch icons
-                fullscreenIcon.style.display = 'none';
-                exitFullscreenIcon.style.display = 'block';
-            } else {
-                // Exit fullscreen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-                
-                // Switch icons
-                fullscreenIcon.style.display = 'block';
-                exitFullscreenIcon.style.display = 'none';
-            }
-        }
-        
-        // Listen for fullscreen changes to update icon
-        document.addEventListener('fullscreenchange', updateFullscreenIcon);
-        document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
-        
-        function updateFullscreenIcon() {
-            const fullscreenIcon = document.querySelector('.fullscreen-icon');
-            const exitFullscreenIcon = document.querySelector('.exit-fullscreen-icon');
-            
-            if (document.fullscreenElement || document.webkitFullscreenElement) {
-                fullscreenIcon.style.display = 'none';
-                exitFullscreenIcon.style.display = 'block';
-            } else {
-                fullscreenIcon.style.display = 'block';
-                exitFullscreenIcon.style.display = 'none';
-            }
-        }
-    </script>
+  </aside>
+
+  <!-- Main area = the remainder of the page -->
+  <main class="main" role="main" aria-label="TesPush View">
+    <!-- If tespush.com is blocked or not HTTPS in your environment, switch to https://tespush.cn/ -->
+    <iframe
+      src="https://tespush.com/"
+      allow="autoplay; fullscreen; clipboard-read; clipboard-write"
+      referrerpolicy="no-referrer"
+      sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+      title="TesPush"
+    ></iframe>
+  </main>
+
 </body>
 </html>
