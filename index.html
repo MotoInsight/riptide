@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#000000" />
-  <title>Riptide – Embedded TesPush (2048×768)</title>
+  <title>Riptide – Embedded TesPush (2000×800)</title>
   <style>
     html, body { height: 100%; }
     html { background: #000; }
@@ -16,12 +16,12 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* Gutters for 2331×907 viewport → main = 2048×768
-       TOP = 60, RIGHT = 283, BOTTOM = 79, LEFT = 0
+    /* Gutters for 2331×907 viewport → main = 2000×800
+       TOP = 107, RIGHT = 331, BOTTOM = 0, LEFT = 0
     */
     .top-reserved {
       position: fixed;
-      top: 0; left: 0; right: 283px; height: 100px;
+      top: 0; left: 0; right: 331px; height: 107px;
       display: flex; align-items: center; justify-content: center;
       padding: 0 12px;
       background: #000;
@@ -33,26 +33,16 @@
 
     .right-reserved {
       position: fixed;
-      top: 0; right: 0; bottom: 0; width: 283px;
+      top: 0; right: 0; bottom: 0; width: 331px;
       background: #000;
       border-left: 1px solid rgba(255,255,255,0.06);
       z-index: 1;
       overflow: auto;
     }
 
-    .bottom-reserved {
-      position: fixed;
-      left: 0; right: 283px; bottom: 0; height: 39px;
-      background: #000;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      z-index: 2;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0 12px;
-    }
-
     .main {
       position: fixed;
-      top: 100px; right: 283px; bottom: 39px; left: 0;
+      top: 107px; right: 331px; bottom: 0; left: 0;
       background: #000;          /* black behind the iframe while it loads */
       z-index: 0;
     }
@@ -64,7 +54,7 @@
       background: #000;          /* iframe surface fallback */
     }
 
-    .right-reserved, .top-reserved, .bottom-reserved { -webkit-user-select: none; user-select: none; }
+    .right-reserved, .top-reserved { -webkit-user-select: none; user-select: none; }
   </style>
 </head>
 <body>
@@ -77,20 +67,15 @@
   <!-- Right gutter for any controls/diagnostics you want -->
   <aside class="right-reserved">
     <div style="padding:12px;">
-      <h2 style="margin:12px 0 8px;font-size:16px;">Side Panel (283px reserved)</h2>
+      <h2 style="margin:12px 0 8px;font-size:16px;">Side Panel (331px reserved)</h2>
       <p style="opacity:.8;line-height:1.4;margin:0 0 12px;">
-        The iframe (left) targets 2048×768 within a 2331×907 WebView.
+        The iframe (left) targets <strong>2000×800</strong> within a 2331×907 WebView.
       </p>
       <div id="mainDims" style="opacity:.8;font-size:13px;"></div>
     </div>
   </aside>
 
-  <!-- Bottom gutter (79px) -->
-  <footer class="bottom-reserved" aria-label="Footer">
-    <div style="opacity:.8;font-size:13px;">Footer (79px reserved)</div>
-  </footer>
-
-  <!-- Main area (iframe fills what remains after top/right/bottom gutters) -->
+  <!-- Main area (iframe fills what remains after top/right gutters; no bottom padding) -->
   <main class="main" role="main" aria-label="TesPush View">
     <iframe
       src="https://tespush.com/"
@@ -107,9 +92,9 @@
       const mainDims = document.getElementById('mainDims');
 
       // Keep these in one place so CSS/JS stay in sync
-      const GUTTER_TOP = 100;
-      const GUTTER_RIGHT = 283;
-      const GUTTER_BOTTOM = 39;
+      const GUTTER_TOP = 107;
+      const GUTTER_RIGHT = 331;
+      const GUTTER_BOTTOM = 0;
 
       function update() {
         // Total WebView viewport in CSS pixels
@@ -120,8 +105,10 @@
         // Iframe (main area) size = viewport minus gutters
         const iframeW = Math.max(0, w - GUTTER_RIGHT);
         const iframeH = Math.max(0, h - (GUTTER_TOP + GUTTER_BOTTOM));
-        if (mainDims) mainDims.textContent =
-          `Iframe area: ${iframeW} × ${iframeH} px (target 2048 × 768; top ${GUTTER_TOP}, right ${GUTTER_RIGHT}, bottom ${GUTTER_BOTTOM})`;
+        if (mainDims) {
+          mainDims.textContent =
+            `Iframe area: ${iframeW} × ${iframeH} px (target 2000 × 800; top ${GUTTER_TOP}, right ${GUTTER_RIGHT}, bottom ${GUTTER_BOTTOM})`;
+        }
       }
 
       window.addEventListener('load', update, { passive: true });
