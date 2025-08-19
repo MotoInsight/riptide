@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#000000" />
-  <title>Riptide – Embedded TesPush (2000×800)</title>
+  <title>Riptide – Embedded TesPush (2304×768)</title>
   <style>
     html, body { height: 100%; }
     html { background: #000; }
@@ -16,12 +16,12 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* Gutters for 2331×907 viewport → main = 2000×800
-       TOP = 107, RIGHT = 331, BOTTOM = 0, LEFT = 0
+    /* Gutters for 2331×907 viewport → main = 2304×768
+       TOP = 139, RIGHT = 27, BOTTOM = 0, LEFT = 0
     */
     .top-reserved {
       position: fixed;
-      top: 0; left: 0; right: 331px; height: 107px;
+      top: 0; left: 0; right: 27px; height: 139px;
       display: flex; align-items: center; justify-content: center;
       padding: 0 12px;
       background: #000;
@@ -33,16 +33,17 @@
 
     .right-reserved {
       position: fixed;
-      top: 0; right: 0; bottom: 0; width: 331px;
+      top: 0; right: 0; bottom: 0; width: 27px;
       background: #000;
       border-left: 1px solid rgba(255,255,255,0.06);
       z-index: 1;
       overflow: auto;
     }
 
+    /* No bottom element or border */
     .main {
       position: fixed;
-      top: 107px; right: 331px; bottom: 0; left: 0;
+      top: 139px; right: 27px; bottom: 0; left: 0;
       background: #000;          /* black behind the iframe while it loads */
       z-index: 0;
     }
@@ -64,14 +65,10 @@
     <span id="vwvh" aria-live="polite">—</span>
   </div>
 
-  <!-- Right gutter for any controls/diagnostics you want -->
-  <aside class="right-reserved">
-    <div style="padding:12px;">
-      <h2 style="margin:12px 0 8px;font-size:16px;">Side Panel (331px reserved)</h2>
-      <p style="opacity:.8;line-height:1.4;margin:0 0 12px;">
-        The iframe (left) targets <strong>2000×800</strong> within a 2331×907 WebView.
-      </p>
-      <div id="mainDims" style="opacity:.8;font-size:13px;"></div>
+  <!-- Right gutter (27px) -->
+  <aside class="right-reserved" aria-label="Right gutter">
+    <div style="padding:6px; writing-mode:vertical-rl; transform:rotate(180deg); font-size:12px; opacity:.7;">
+      27 px
     </div>
   </aside>
 
@@ -89,11 +86,10 @@
   <script>
     (function () {
       const vwvh = document.getElementById('vwvh');
-      const mainDims = document.getElementById('mainDims');
 
       // Keep these in one place so CSS/JS stay in sync
-      const GUTTER_TOP = 107;
-      const GUTTER_RIGHT = 331;
+      const GUTTER_TOP = 139;
+      const GUTTER_RIGHT = 27;
       const GUTTER_BOTTOM = 0;
 
       function update() {
@@ -105,10 +101,8 @@
         // Iframe (main area) size = viewport minus gutters
         const iframeW = Math.max(0, w - GUTTER_RIGHT);
         const iframeH = Math.max(0, h - (GUTTER_TOP + GUTTER_BOTTOM));
-        if (mainDims) {
-          mainDims.textContent =
-            `Iframe area: ${iframeW} × ${iframeH} px (target 2000 × 800; top ${GUTTER_TOP}, right ${GUTTER_RIGHT}, bottom ${GUTTER_BOTTOM})`;
-        }
+        // Debug in console (optional)
+        console.log(`Iframe area: ${iframeW} × ${iframeH} (target 2304 × 768)`);
       }
 
       window.addEventListener('load', update, { passive: true });
